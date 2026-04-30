@@ -4,13 +4,34 @@
   width: 10px;
   height: 10px;
 }
+
 ::-webkit-scrollbar-track {
   background: #0b1622;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #151f2e;
   border-radius: 5px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
+  background: #3db4f2;
+}
+
+/* Reader Scrollbar */
+.reader-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.reader-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.reader-scroll::-webkit-scrollbar-thumb {
+  background: #1a2a3a;
+  border-radius: 3px;
+}
+
+.reader-scroll::-webkit-scrollbar-thumb:hover {
   background: #3db4f2;
 }

@@ -26,6 +26,7 @@ export interface MangaNode {
   };
   title: string;
   title_english: string | null;
+  title_romaji: string | null;
   title_japanese: string | null;
   status: string;
   chapters: number | null;
@@ -53,7 +54,7 @@ export interface JikanResponse<T> {
 
 const fetcher = async (url: string): Promise<any> => {
   if (url.includes('api.jikan.moe')) {
-     return fetchAnilist(url);
+    return fetchAnilist(url);
   }
   const res = await fetch(url);
   return res.json();

@@ -9,14 +9,16 @@ export async function fetchAnilist(url: string) {
   
   if (path.includes('/top/manga')) {
     const limit = parseInt(params.get('limit') || '6');
+    const page = parseInt(params.get('page') || '1');
     query = `
-      query($limit: Int) {
-        Page(page: 1, perPage: $limit) {
+      query($limit: Int, $page: Int) {
+        Page(page: $page, perPage: $limit) {
+          pageInfo { total currentPage lastPage hasNextPage perPage }
           media(type: MANGA, sort: POPULARITY_DESC) { ...MediaFragment }
         }
       }
     `;
-    variables = { limit };
+    variables = { limit, page };
   } else if (path.includes('/manga') && !params.get('q') && params.get('genres')) {
     // Recommendations
     const limit = parseInt(params.get('limit') || '6');
@@ -52,14 +54,16 @@ export async function fetchAnilist(url: string) {
   } else {
     // Trending
      const limit = parseInt(params.get('limit') || '6');
+     const page = parseInt(params.get('page') || '1');
      query = `
-        query($limit: Int) {
-           Page(page: 1, perPage: $limit) {
+        query($limit: Int, $page: Int) {
+           Page(page: $page, perPage: $limit) {
+              pageInfo { total currentPage lastPage hasNextPage perPage }
               media(type: MANGA, sort: TRENDING_DESC) { ...MediaFragment }
            }
         }
      `
-     variables = { limit };
+     variables = { limit, page };
   }
   
   const fragment = `
@@ -86,8 +90,9 @@ export async function fetchAnilist(url: string) {
       mal_id: m.id,
       url: m.siteUrl || `https://anilist.co/manga/${m.id}`,
       images: { webp: { large_image_url: m.coverImage?.extraLarge || m.coverImage?.large, image_url: m.coverImage?.large, small_image_url: m.coverImage?.large } },
-      title: m.title?.romaji || m.title?.english || "Unknown",
+      title: m.title?.english || m.title?.romaji || "Unknown",
       title_english: m.title?.english,
+      title_romaji: m.title?.romaji || null,
       title_japanese: m.title?.native,
       status: m.status === 'RELEASING' ? 'Publishing' : m.status,
       chapters: m.chapters,
@@ -104,7 +109,21 @@ export async function fetchAnilist(url: string) {
   }
   
   if (data.data?.Page) {
-    return { data: data.data.Page.media.map(toJikan) }
+    const pageInfo = data.data.Page.pageInfo;
+    const result: any = { data: data.data.Page.media.map(toJikan) };
+    if (pageInfo) {
+      result.pagination = {
+        last_visible_page: pageInfo.lastPage || 1,
+        has_next_page: pageInfo.hasNextPage || false,
+        current_page: pageInfo.currentPage || 1,
+        items: {
+          count: data.data.Page.media.length,
+          total: pageInfo.total || 0,
+          per_page: pageInfo.perPage || 24,
+        }
+      };
+    }
+    return result;
   } else if (data.data?.Media) {
     return { data: toJikan(data.data.Media) }
   }
