@@ -1,4 +1,4 @@
-import { searchMangaPill, getMangaPillChapters, getMangaPillPages } from './lib/scrapers/mangapill.ts';
+import { searchMangaPill, getMangaPillChapters, getMangaPillPages } from './lib/scrapers/mangapill';
 
 async function test() {
   console.log('Searching for Kingdom...');

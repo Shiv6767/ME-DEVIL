@@ -17,6 +17,8 @@ export async function GET(request: Request) {
     // Set proper referer based on source to bypass hotlink protection
     if (source === 'mangapill') {
       headers.set('Referer', 'https://mangapill.com/');
+    } else if (source === 'mangahere') {
+      headers.set('Referer', 'https://www.mangahere.cc/');
     }
 
     const response = await fetch(url, { headers });

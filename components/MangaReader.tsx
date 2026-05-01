@@ -60,6 +60,7 @@ export function MangaReader({
   }, [readingMode]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     resetControlsTimer();
     return () => {
       if (controlsTimerRef.current) clearTimeout(controlsTimerRef.current);
@@ -98,25 +99,25 @@ export function MangaReader({
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
 
-  const goToNextPage = () => {
+  function goToNextPage() {
     if (currentPage < totalPages - 1) {
       setCurrentPage((p) => p + 1);
       resetControlsTimer();
     } else if (hasNextChapter && onNextChapter) {
       onNextChapter();
     }
-  };
+  }
 
-  const goToPrevPage = () => {
+  function goToPrevPage() {
     if (currentPage > 0) {
       setCurrentPage((p) => p - 1);
       resetControlsTimer();
     } else if (hasPrevChapter && onPrevChapter) {
       onPrevChapter();
     }
-  };
+  }
 
-  const toggleFullscreen = () => {
+  function toggleFullscreen() {
     if (!document.fullscreenElement) {
       containerRef.current?.requestFullscreen();
       setIsFullscreen(true);
@@ -124,7 +125,7 @@ export function MangaReader({
       document.exitFullscreen();
       setIsFullscreen(false);
     }
-  };
+  }
 
   useEffect(() => {
     const onFSChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -134,6 +135,7 @@ export function MangaReader({
 
   // Reset page when mode changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(0);
   }, [readingMode]);
 
@@ -147,7 +149,7 @@ export function MangaReader({
         <div className="text-center space-y-4">
           <ImageIcon className="h-16 w-16 text-[#3a4a5a] mx-auto" />
           <h3 className="text-lg font-bold text-[#9fadbd]">No Pages Available</h3>
-          <p className="text-sm text-[#8ba0b2]">This chapter has no readable pages from MangaDex.</p>
+          <p className="text-sm text-[#8ba0b2]">This chapter has no readable pages from the selected source.</p>
           <button
             onClick={onClose}
             className="px-6 py-2 bg-[#3db4f2] text-white rounded font-bold text-sm hover:bg-[#3db4f2]/80 transition-colors"

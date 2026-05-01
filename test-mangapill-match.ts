@@ -1,4 +1,4 @@
-import { searchMangaPill } from './lib/scrapers/mangapill.ts';
+import { searchMangaPill } from './lib/scrapers/mangapill';
 
 async function test() {
   const query = "Solo Leveling";

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useMemo } from 'react';
+import { Suspense, useMemo, useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { motion } from 'motion/react';
 import Link from 'next/link';
@@ -29,7 +29,14 @@ function TopMangaSection() {
 }
 
 function RecommendationsSection() {
+  const [mounted, setMounted] = useState(false);
   const saved = useLibraryStore((state) => state.saved);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
   const preferredGenres = useMemo(() => {
     const savedList = Object.values(saved);
     if (savedList.length === 0) return [];
@@ -47,22 +54,25 @@ function RecommendationsSection() {
       .map(([id]) => parseInt(id));
   }, [saved]);
 
-  const hasHistory = preferredGenres.length > 0;
-  const genresQuery = hasHistory ? preferredGenres.join(',') : '1,2,10'; // Fallback
+  const savedList = Object.values(saved);
+  const hasHistory = savedList.length > 0;
+  const genresQuery = preferredGenres.length > 0 ? preferredGenres.join(',') : '1,2,10'; // Fallback
 
   const { data, error, isLoading } = useSWR<JikanResponse<MangaNode[]>>(
-    `${JIKAN_BASE_URL}/manga?genres=${genresQuery}&order_by=score&sort=desc&limit=6&status=publishing`,
+    mounted && hasHistory ? `${JIKAN_BASE_URL}/manga?genres=${genresQuery}&order_by=score&sort=desc&limit=6&status=publishing` : null,
     fetcher
   );
 
+  if (!mounted) return <MangaSkeletonGrid count={6} />;
+
   if (!hasHistory) {
     return (
-      <div className="bg-[#151f2e] p-8 rounded text-center shadow-sm">
+      <div className="bg-[#151f2e] p-8 rounded text-center shadow-sm w-full">
         <h3 className="text-sm font-semibold text-[#a0b1c5] mb-2">Build Your Reading Profile</h3>
-        <p className="text-xs text-[#a0b1c5]/70 max-w-sm mx-auto mb-4">
+        <p className="text-xs text-[#a0b1c5]/70 max-w-md mx-auto mb-6">
           Save titles to your library to receive customized data feeds and predictions.
         </p>
-        <Link href="/search" className="text-xs font-bold text-[#3db4f2] hover:text-[#d3d5f3] transition-colors uppercase tracking-wider">
+        <Link href="/search" className="inline-block bg-[#3db4f2] text-white px-6 py-2.5 rounded text-xs font-bold hover:bg-[#2c98d4] transition-colors uppercase tracking-wider">
           Initialize Database
         </Link>
       </div>
@@ -132,7 +142,7 @@ export default function Home() {
 
       <section className="space-y-4">
         <div className="flex items-end justify-between">
-          <Link href="/search" className="text-lg font-bold text-[#9fadbd] hover:text-[#d3d5f3] transition-colors uppercase tracking-wider">RECOMMENDED FOR YOU</Link>
+          <h2 className="text-lg font-bold text-[#9fadbd] uppercase tracking-wider">RECOMMENDED FOR YOU</h2>
           <Link href="/search" className="text-[11px] font-bold text-[#8ba0b2] hover:text-[#d3d5f3] transition-colors uppercase tracking-wider">VIEW ALL</Link>
         </div>
         <Suspense fallback={<MangaSkeletonGrid count={6} />}>

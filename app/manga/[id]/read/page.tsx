@@ -104,6 +104,7 @@ export default function ReadMangaPage({ params }: { params: Promise<{ id: string
 
   // Filter chapters based on search
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (!searchQuery.trim()) {
       setFilteredChapters(chapters);
     } else {
@@ -116,6 +117,7 @@ export default function ReadMangaPage({ params }: { params: Promise<{ id: string
         )
       );
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [chapters, searchQuery]);
 
   // Open a chapter for reading
@@ -123,8 +125,8 @@ export default function ReadMangaPage({ params }: { params: Promise<{ id: string
     const chapter = chapters[index];
     if (!chapter) return;
 
-    // If chapter has an external URL (e.g. MangaPlus) and no embeddable pages
-    if (chapter.externalUrl && chapter.pages === 0) {
+    // If chapter is from MangaDex and has an external URL with no embeddable pages (e.g. MangaPlus)
+    if (chapter.sourceId === 'mangadex' && chapter.externalUrl && chapter.pages === 0) {
       window.open(chapter.externalUrl, '_blank');
       return;
     }
